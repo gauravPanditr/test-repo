@@ -1,42 +1,48 @@
+import { useState, useEffect, useRef } from "react";
+import Login from "./components/auth/Login";
+import EmployeeDashBoard from "./components/Dashboard/EmployeeDashBoard";
+import AdminDashBoard from "./components/Dashboard/AdminDashBoard";
+import { getLocalStorage, setLocalStorage } from "./util/localStorage";
+import useAuthStore from "./store/authUser";
 
-import { useState } from "react";
-import "./App.css";
+export  function App() {
+  useEffect(() => {
+  setLocalStorage();
+}, []);
 
-import Login from "./pages/Login";
+const { employees, admin } = getLocalStorage();
+const {userType,setUserType,setLoggedInEmployee}=useAuthStore();
+  
 
-export default function App() {
- 
+const handleLogin = (email, password) => {
+  if (email === "admin@me.com" && password === "123") {
+    setUserType("admin");
+  } else {
+    const employee = employees.find(
+  (emp) =>
+    emp.email === email &&
+    emp.password === password
+);
+    if (employee) {
+  setUserType("employee");
+  setLoggedInEmployee(employee);
+} else {
+      alert("Invalid Credentials");
+    }
+  }
+};
 
-  //   const [products, setProducts] = useState([]);
-  //   const [loading,setLoding]=useState(true);
-  //   const [error,setError]=useState(false);
-  //  useEffect(() => {
-  //   const loadProducts = async () => {
-  //     try {
-  //       const data = await product_fetch();
-  //       setProducts(data);
-  //     } catch (err) {
-  //       setError(true);
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
+   return (
+   <>
+   {!userType ? <Login handleLogin={handleLogin}/>:''}
+  {userType === "admin" && (
+        <AdminDashBoard
+          changeUser={setUser}
+          data={employees}
+        />
+      )}
 
-  //   loadProducts();
-  // }, []);
-    
-  //       {/* {[...products]
-  // .sort((a, b) => a.price - b.price)
-  // .map(product => (
-  //   <ProductCard key={product.id} product={product} />
-  // ))} */}
- return (
-
-        <div className="bg-gray-950 max-w-full max-h-full">
- <Login/> 
-   
-
-        </div>
-
-    );
+    {userType === "employee" && <EmployeeDashBoard />}
+   </>
+);
 }
