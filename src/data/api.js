@@ -19,3 +19,5 @@ export const searchNews=async(search)=>{
     return response.data;
     
 }
+
+
